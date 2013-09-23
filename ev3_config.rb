@@ -1,11 +1,13 @@
 # Define cross build settings for MINDSTORMS EV3
 MRuby::CrossBuild.new('ev3') do |conf|
   toolchain :gcc
-  conf.cc.command = '/usr/local/angstrom/arm/bin/arm-angstrom-linux-gnueabi-gcc'
-  conf.linker.command = '/usr/local/angstrom/arm/bin/arm-angstrom-linux-gnueabi-gcc'
+
+  code_sourcery_bin = ENV["HOME"] + '/CodeSourcery/Sourcery_G++_Lite/bin/'
+
+  conf.cc.command = code_sourcery_bin + 'arm-none-linux-gnueabi-gcc'
+  conf.linker.command = code_sourcery_bin + 'arm-none-linux-gnueabi-gcc'
   conf.linker.flags << %w(-static)
-  conf.linker.libraries << ['arm-angstrom-linux-gnueabi-sim']
-  conf.archiver.command = '/usr/local/angstrom/arm/bin/arm-angstrom-linux-gnueabi-ar'
+  conf.archiver.command = code_sourcery_bin + 'arm-none-linux-gnueabi-ar'
 
   conf.build_mrbtest_lib_only
 
