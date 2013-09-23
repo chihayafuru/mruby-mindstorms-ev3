@@ -63,15 +63,15 @@ static mrb_value
 mrb_ev3_set_led(mrb_state *mrb, mrb_value self)
 {
   struct ev3_state *state = DATA_PTR(self);
-  mrb_int key;
+  mrb_int pattern;
 
-  mrb_get_args(mrb, "i", &key);
-  if(key >= 0 && key <= 5) {
+  mrb_get_args(mrb, "i", &pattern);
+  if(pattern >= 0 && pattern <= 9) {
     char buf[2] = "0";
-    buf[0] = '0'+key;
+    buf[0] = '0'+pattern;
     write(state->lms_ui, buf, 2);
   }
-  return mrb_fixnum_value(key);
+  return mrb_fixnum_value(pattern);
 }
 
 void
