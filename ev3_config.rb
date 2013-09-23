@@ -13,7 +13,7 @@ MRuby::CrossBuild.new('ev3') do |conf|
 
   conf.gem 'mrbgems/mruby-bin-mirb'
   conf.gem 'mrbgems/mruby-bin-mruby'
-  conf.gem 'mrbgems/mruby-io'
+  conf.gem 'mrbgems/mruby-print'
   conf.gem 'mrbgems/mruby-mindstorms-ev3'
 end
 
