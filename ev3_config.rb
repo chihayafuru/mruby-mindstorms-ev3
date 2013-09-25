@@ -2,12 +2,14 @@
 MRuby::CrossBuild.new('ev3') do |conf|
   toolchain :gcc
 
-  code_sourcery_bin = ENV["HOME"] + '/CodeSourcery/Sourcery_G++_Lite/bin/'
+  CODE_SOURCERY_ROOT = "#{ENV['HOME']}/CodeSourcery/Sourcery_G++_Lite"
+  EV3SOURCES_ROOT = "#{ENV['HOME']}/ev3sources"
 
-  conf.cc.command = code_sourcery_bin + 'arm-none-linux-gnueabi-gcc'
-  conf.linker.command = code_sourcery_bin + 'arm-none-linux-gnueabi-gcc'
+  conf.cc.command = "#{CODE_SOURCERY_ROOT}/bin/arm-none-linux-gnueabi-gcc"
+  conf.cc.include_paths << "#{EV3SOURCES_ROOT}/lms2012/lms2012/source"
+  conf.linker.command = "#{CODE_SOURCERY_ROOT}/bin/arm-none-linux-gnueabi-gcc"
   conf.linker.flags << %w(-static)
-  conf.archiver.command = code_sourcery_bin + 'arm-none-linux-gnueabi-ar'
+  conf.archiver.command = "#{CODE_SOURCERY_ROOT}/bin/arm-none-linux-gnueabi-ar"
 
   conf.build_mrbtest_lib_only
 
