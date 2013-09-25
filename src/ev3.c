@@ -1,3 +1,4 @@
+#include "lms2012.h"
 #include <mruby.h>
 #include <mruby/data.h>
 #include <sys/types.h>
@@ -36,7 +37,7 @@ mrb_ev3_initialize(mrb_state *mrb, mrb_value self)
   DATA_TYPE(self) = &ev3_type;
   DATA_PTR(self) = state;
 
-  state->lms_ui = open("/dev/lms_ui", O_RDWR|O_SYNC);
+  state->lms_ui = open(UI_DEVICE_NAME, O_RDWR|O_SYNC);
 
   state->keypad = MAP_FAILED;
   if(state->lms_ui > 0) {
