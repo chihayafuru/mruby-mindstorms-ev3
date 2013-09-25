@@ -13,10 +13,10 @@ MRuby::CrossBuild.new('ev3') do |conf|
 
   conf.build_mrbtest_lib_only
 
-  conf.gem 'mrbgems/mruby-bin-mirb'
-  conf.gem 'mrbgems/mruby-bin-mruby'
-  conf.gem 'mrbgems/mruby-print'
-  conf.gem 'mrbgems/mruby-mindstorms-ev3'
+  conf.gem "#{MRUBY_ROOT}/mrbgems/mruby-bin-mirb"
+  conf.gem "#{MRUBY_ROOT}/mrbgems/mruby-bin-mruby"
+  conf.gem "#{MRUBY_ROOT}/mrbgems/mruby-print"
+  conf.gem "#{MRUBY_ROOT}/mrbgems/mruby-mindstorms-ev3"
 end
 
 MRuby::Build.new do |conf|
