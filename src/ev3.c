@@ -12,6 +12,7 @@
 
 struct ev3_state {
   int lms_ui;
+  int lms_pwm;
   unsigned char *keypad;
 };
 
@@ -23,6 +24,9 @@ static void ev3_free(mrb_state *mrb, void *ptr) {
   }
   if(state->lms_ui > 0) {
     close(state->lms_ui);
+  }
+  if(state->lms_pwm > 0) {
+    close(state->lms_pwm);
   }
   mrb_free(mrb, state);
 }
@@ -38,6 +42,7 @@ mrb_ev3_initialize(mrb_state *mrb, mrb_value self)
   DATA_PTR(self) = state;
 
   state->lms_ui = open(UI_DEVICE_NAME, O_RDWR|O_SYNC);
+  state->lms_pwm = open(PWM_DEVICE_NAME, O_WRONLY);
 
   state->keypad = MAP_FAILED;
   if(state->lms_ui > 0) {
@@ -75,12 +80,80 @@ mrb_ev3_set_led(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(pattern);
 }
 
+static mrb_value
+mrb_ev3_motor_run(mrb_state *mrb, mrb_value self)
+{
+  struct ev3_state *state = DATA_PTR(self);
+  char motor_command[5];
+  int file;
+
+  // A = 0×1, B = 0×2, C = 0×4, D = 0×8
+  // AC = 0×5
+  const char MOTOR_A = 0x01;
+  //const char MOTOR_B = 0x02;
+
+  // Motor power 0..100
+  const int SPEED = 50;
+
+  printf("motor run\n");
+
+  // For most operations, the second byte represent the motor(s)
+  motor_command[1] = MOTOR_A;
+
+  // Start the motor
+  motor_command[0] = opOUTPUT_START;
+  write(state->lms_pwm,motor_command,2);
+
+  // Set the motor power
+  motor_command[0] = opOUTPUT_POWER;
+  motor_command[2] = SPEED;
+  write(state->lms_pwm,motor_command,3);
+
+  return mrb_nil_value();
+}
+
+static mrb_value
+mrb_ev3_motor_stop(mrb_state *mrb, mrb_value self)
+{
+  struct ev3_state *state = DATA_PTR(self);
+  char motor_command[5];
+  int file;
+
+  // A = 0×1, B = 0×2, C = 0×4, D = 0×8
+  // AC = 0×5
+  const char MOTOR_A = 0x01;
+
+  printf("motor stop\n");
+
+  // Stops the motor
+  motor_command[0] = opOUTPUT_STOP;
+  motor_command[1] = MOTOR_A;
+  write(state->lms_pwm,motor_command,2);
+
+  return mrb_nil_value();
+}
+
+static mrb_value
+mrb_ev3_usleep(mrb_state *mrb, mrb_value self)
+{
+  mrb_int utime;
+
+  mrb_get_args(mrb, "i", &utime);
+
+  usleep(utime);
+
+  return mrb_nil_value();
+}
+
 void
 mrb_mruby_mindstorms_ev3_gem_init(mrb_state* mrb) {
   struct RClass *ev3_class = mrb_define_class(mrb, "EV3", mrb->object_class);
   mrb_define_method(mrb, ev3_class, "initialize", mrb_ev3_initialize, ARGS_NONE());
   mrb_define_method(mrb, ev3_class, "keypad?", mrb_ev3_keypad, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, ev3_class, "led=", mrb_ev3_set_led, MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, ev3_class, "usleep", mrb_ev3_usleep, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, ev3_class, "motorRun", mrb_ev3_motor_run, MRB_ARGS_NONE());
+  mrb_define_method(mrb, ev3_class, "motorStop", mrb_ev3_motor_stop, MRB_ARGS_NONE());
 }
 
 void
