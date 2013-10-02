@@ -81,54 +81,128 @@ mrb_ev3_set_led(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
-mrb_ev3_motor_run(mrb_state *mrb, mrb_value self)
+mrb_ev3_start_motor(mrb_state *mrb, mrb_value self)
 {
   struct ev3_state *state = DATA_PTR(self);
-  char motor_command[5];
-  int file;
+  char motor_command[5] = {0,};
+  char* portNames;
+  int len;
+  int cnt;
 
-  // A = 0×1, B = 0×2, C = 0×4, D = 0×8
-  // AC = 0×5
-  const char MOTOR_A = 0x01;
-  //const char MOTOR_B = 0x02;
+  mrb_get_args(mrb, "s", &portNames, &len);
 
-  // Motor power 0..100
-  const int SPEED = 50;
+  motor_command[1] = 0x00;
+  for (cnt = 0 ; cnt < len ; cnt++) {
+    switch (portNames[cnt]) {
+      case 'A':
+        motor_command[1] |= 0x01;
+        break;
+      case 'B':
+        motor_command[1] |= 0x02;
+        break;
+      case 'C':
+        motor_command[1] |= 0x04;
+        break;
+      case 'D':
+        motor_command[1] |= 0x08;
+        break;
+      default:
+        ; /* do nothing */
+        break;
+    }
+  }
 
-  printf("motor run\n");
-
-  // For most operations, the second byte represent the motor(s)
-  motor_command[1] = MOTOR_A;
-
-  // Start the motor
   motor_command[0] = opOUTPUT_START;
+
   write(state->lms_pwm,motor_command,2);
 
-  // Set the motor power
-  motor_command[0] = opOUTPUT_POWER;
-  motor_command[2] = SPEED;
-  write(state->lms_pwm,motor_command,3);
+  printf("start motor\n");
 
   return mrb_nil_value();
 }
 
 static mrb_value
-mrb_ev3_motor_stop(mrb_state *mrb, mrb_value self)
+mrb_ev3_stop_motor(mrb_state *mrb, mrb_value self)
 {
   struct ev3_state *state = DATA_PTR(self);
-  char motor_command[5];
-  int file;
+  char motor_command[5] = {0,};
+  char* portNames;
+  int len;
+  int cnt;
 
-  // A = 0×1, B = 0×2, C = 0×4, D = 0×8
-  // AC = 0×5
-  const char MOTOR_A = 0x01;
+  mrb_get_args(mrb, "s", &portNames, &len);
 
-  printf("motor stop\n");
+  motor_command[1] = 0x00;
+  for (cnt = 0 ; cnt < len ; cnt++) {
+    switch (portNames[cnt]) {
+      case 'A':
+        motor_command[1] |= 0x01;
+        break;
+      case 'B':
+        motor_command[1] |= 0x02;
+        break;
+      case 'C':
+        motor_command[1] |= 0x04;
+        break;
+      case 'D':
+        motor_command[1] |= 0x08;
+        break;
+      default:
+        ; /* do nothing */
+        break;
+    }
+  }
 
-  // Stops the motor
   motor_command[0] = opOUTPUT_STOP;
-  motor_command[1] = MOTOR_A;
+
   write(state->lms_pwm,motor_command,2);
+
+  printf("stop motor\n");
+
+  return mrb_nil_value();
+}
+
+static mrb_value
+mrb_ev3_set_motor_power(mrb_state *mrb, mrb_value self)
+{
+  struct ev3_state *state = DATA_PTR(self);
+  char motor_command[5] = {0,};
+  char* portNames;
+  int len;
+  int power;
+  int cnt;
+
+  mrb_get_args(mrb, "si", &portNames, &len, &power);
+
+  for (cnt = 0 ; cnt < len ; cnt++) {
+    switch (portNames[cnt]) {
+      case 'A':
+        motor_command[1] |= 0x01;
+        break;
+      case 'B':
+        motor_command[1] |= 0x02;
+        break;
+      case 'C':
+        motor_command[1] |= 0x04;
+        break;
+      case 'D':
+        motor_command[1] |= 0x08;
+        break;
+      default:
+        ; /* do nothing */
+        break;
+    }
+  }
+
+  if (power < -100)	power = -100;
+  if (power > 100)	power = 100;
+
+  motor_command[0] = opOUTPUT_POWER;
+  motor_command[2] = power;
+
+  printf("set power\n");
+
+  write(state->lms_pwm,motor_command,3);
 
   return mrb_nil_value();
 }
@@ -152,8 +226,9 @@ mrb_mruby_mindstorms_ev3_gem_init(mrb_state* mrb) {
   mrb_define_method(mrb, ev3_class, "keypad?", mrb_ev3_keypad, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, ev3_class, "led=", mrb_ev3_set_led, MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, ev3_class, "usleep", mrb_ev3_usleep, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, ev3_class, "motorRun", mrb_ev3_motor_run, MRB_ARGS_NONE());
-  mrb_define_method(mrb, ev3_class, "motorStop", mrb_ev3_motor_stop, MRB_ARGS_NONE());
+  mrb_define_method(mrb, ev3_class, "startMotor", mrb_ev3_start_motor, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, ev3_class, "stopMotor", mrb_ev3_stop_motor, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, ev3_class, "setMotorPower", mrb_ev3_set_motor_power, MRB_ARGS_REQ(2));
 }
 
 void
