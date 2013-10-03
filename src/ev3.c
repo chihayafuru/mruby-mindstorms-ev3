@@ -226,9 +226,9 @@ mrb_mruby_mindstorms_ev3_gem_init(mrb_state* mrb) {
   mrb_define_method(mrb, ev3_class, "keypad?", mrb_ev3_keypad, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, ev3_class, "led=", mrb_ev3_set_led, MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, ev3_class, "usleep", mrb_ev3_usleep, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, ev3_class, "startMotor", mrb_ev3_start_motor, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, ev3_class, "stopMotor", mrb_ev3_stop_motor, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, ev3_class, "setMotorPower", mrb_ev3_set_motor_power, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, ev3_class, "start_motor", mrb_ev3_start_motor, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, ev3_class, "stop_motor", mrb_ev3_stop_motor, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, ev3_class, "set_motor_power", mrb_ev3_set_motor_power, MRB_ARGS_REQ(2));
 }
 
 void

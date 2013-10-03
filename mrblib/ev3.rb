@@ -29,7 +29,32 @@ class EV3
     end
   end
 
+  class Motor
+    attr_reader :ports
+
+    def initialize(ev3, ports)
+      @ev3 = ev3
+      @ports = ports
+    end
+
+    def start
+      @ev3.start_motor(@ports)
+    end
+
+    def stop
+      @ev3.stop_motor(@ports)
+    end
+
+    def power(val)
+      @ev3.set_motor_power(@ports, val)
+    end
+  end
+
   def keypad
     @keypad ||= Keypad.new(self)
+  end
+
+  def motor ports
+    EV3::Motor.new(self, ports)
   end
 end
